@@ -250,6 +250,25 @@ nmap <unique> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 "=========================== LSP Registration ======================"
 set updatetime=300
 let g:lsp_diagnostics_enabled = 0         " disable diagnostics support
+" use <tab> for trigger completion and navigate to the next complete item
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <Tab>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<Tab>" :
+      \ coc#refresh()
+" use <c-space>for trigger completion
+inoremap <silent><expr> <c-space> coc#refresh()
+
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
 "if executable('clangd')
 "    au User lsp_setup call lsp#register_server({
 "            \ 'name': 'clangd',
