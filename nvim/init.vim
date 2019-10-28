@@ -215,8 +215,8 @@ function! FloatingFZF()
   let buf = nvim_create_buf(v:false, v:true)
   call setbufvar(buf, '&signcolumn', 'no')
 
-  let height = float2nr(10)
-  let width = float2nr(80)
+  let height = float2nr(30)
+  let width = float2nr(150)
   let horizontal = float2nr((&columns - width) / 2)
   let vertical = 1
 
