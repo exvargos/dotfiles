@@ -6,21 +6,26 @@ call minpac#init()
 call minpac#add('k-takata/minpac', {'type': 'opt'})
 
 " Add other plugins here.
+call minpac#add('christoomey/vim-tmux-navigator')
 call minpac#add('arcticicestudio/nord-vim')
 call minpac#add('vim-airline/vim-airline')
+call minpac#add('sheerun/vim-polyglot')
+call minpac#add('tpope/vim-surround')
+call minpac#add('godlygeek/tabular')
+
+"" Git Plugins
 call minpac#add('rhysd/git-messenger.vim')
 call minpac#add('airblade/vim-gitgutter')
+call minpac#add('tpope/vim-fugitive')
+
+"" Language Plugins
 call minpac#add('junegunn/fzf')
 call minpac#add('junegunn/fzf.vim')
 call minpac#add('liuchengxu/vista.vim')
-call minpac#add('tpope/vim-fugitive')
-call minpac#add('christoomey/vim-tmux-navigator')
 call minpac#add('prabirshrestha/async.vim')
 call minpac#add('prabirshrestha/vim-lsp')
-call minpac#add('tpope/vim-surround')
-call minpac#add('godlygeek/tabular')
-call minpac#add('sheerun/vim-polyglot')
 call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
+call minpac#add('neovim/nvim-lsp')
 "call minpac#add('dense-analysis/ale')
 
 command! Pu call minpac#update()
@@ -280,6 +285,9 @@ nmap <unique> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 "=========================== Shortcuts End======================"
 
 "=========================== LSP Registration ======================"
+"nvim_lsp.ccls.setup({config})
+"call nvim_lsp#setup("ccls", {})
+
 let g:lsp_diagnostics_enabled = 0         " disable diagnostics support
 " use <tab> for trigger completion and navigate to the next complete item
 function! s:check_back_space() abort
@@ -334,14 +342,18 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 "            \ })
 "endif
 
+" Start logging
+"let g:lsp_log_verbose = 1
+"let g:lsp_log_file = 'vim-lsp.log'
+
 " Register ccls C++ lanuage server.
 if executable('ccls')
    au User lsp_setup call lsp#register_server({
       \ 'name': 'ccls',
       \ 'cmd': {server_info->['ccls']},
-      \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['cscope.files', 'compile_commands.json']))},
-      \ 'initialization_options': {'cache': {'directory': '/tmp/ccls/cache' }},
-      \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc', 'h'],
+      \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['cscope.out', 'Release']))},
+      \ 'initialization_options': {'cache': {'directory': '/tmp/ccls/' }},
+      \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
       \ })
 endif
 nnoremap <leader>s :LspReferences<cr>
