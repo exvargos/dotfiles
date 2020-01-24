@@ -12,6 +12,8 @@ call minpac#add('vim-airline/vim-airline')
 call minpac#add('sheerun/vim-polyglot')
 call minpac#add('tpope/vim-surround')
 call minpac#add('godlygeek/tabular')
+call minpac#add('ervandew/supertab')
+call minpac#add('liuchengxu/vim-clap', { 'do': function('clap#helper#build_all') })
 
 "" Git Plugins
 call minpac#add('rhysd/git-messenger.vim')
@@ -25,7 +27,8 @@ call minpac#add('liuchengxu/vista.vim')
 call minpac#add('prabirshrestha/async.vim')
 call minpac#add('prabirshrestha/vim-lsp')
 call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
-call minpac#add('neovim/nvim-lsp')
+"call minpac#add('davidhalter/jedi-vim')
+"call minpac#add('neovim/nvim-lsp')
 "call minpac#add('dense-analysis/ale')
 
 command! Pu call minpac#update()
@@ -66,6 +69,7 @@ syntax on
 filetype plugin on
 "set cmdheight=2
 set signcolumn=yes
+let g:python_highlight_all = 1
 "=========================== Basic end======================"
 
 "=========================== Misc Start======================"
@@ -107,6 +111,7 @@ let g:vista_executive_for = {
 "=========================== Vista End======================"
 
 "=========================== Airline Start======================"
+let g:airline#extensions#coc#enabled = 1
 let g:airline_powerline_fonts = 1
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
