@@ -7,7 +7,7 @@ alias sl='ls'
 function gethostip { nslookup `hostname` | grep -i address | awk -F" " '{print $2}' | awk -F# '{print $1}' | tail -n 1; }
 function rmssh { sed -i $1d ~/.ssh/known_hosts; }
 
-lias colortest='sh ~/24-bit-color.sh'
+alias colortest='sh ~/24-bit-color.sh'
 alias getyear='date +"%Y"'
 alias EDITOR='vi'
 
