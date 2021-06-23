@@ -9,24 +9,25 @@ call minpac#add('k-takata/minpac', {'type': 'opt'})
 call minpac#add('christoomey/vim-tmux-navigator')
 call minpac#add('arcticicestudio/nord-vim')
 call minpac#add('vim-airline/vim-airline')
-call minpac#add('sheerun/vim-polyglot')
 call minpac#add('tpope/vim-surround')
 call minpac#add('godlygeek/tabular')
 call minpac#add('ervandew/supertab')
-call minpac#add('liuchengxu/vim-clap', { 'do': function('clap#helper#build_all') })
+call minpac#add('liuchengxu/vim-clap', { 'do': ':Clap install-binary!' })
+call minpac#add('camspiers/animate.vim')
+call minpac#add('camspiers/lens.vim')
 
 "" Git Plugins
 call minpac#add('rhysd/git-messenger.vim')
-call minpac#add('airblade/vim-gitgutter')
-call minpac#add('tpope/vim-fugitive')
+call minpac#add('nvim-lua/plenary.nvim')
+call minpac#add('lewis6991/gitsigns.nvim')
+"call minpac#add('tpope/vim-fugitive')
 
 "" Language Plugins
-call minpac#add('junegunn/fzf')
-call minpac#add('junegunn/fzf.vim')
-call minpac#add('liuchengxu/vista.vim')
-call minpac#add('prabirshrestha/async.vim')
-call minpac#add('prabirshrestha/vim-lsp')
-call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
+"call minpac#add('liuchengxu/vista.vim')
+"call minpac#add('prabirshrestha/async.vim')
+"call minpac#add('prabirshrestha/vim-lsp')
+call minpac#add('nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'})
+call minpac#add('lukas-reineke/indent-blankline.nvim', {'branch': 'lua'})
 "call minpac#add('davidhalter/jedi-vim')
 "call minpac#add('neovim/nvim-lsp')
 "call minpac#add('dense-analysis/ale')
@@ -65,7 +66,8 @@ set list
 set listchars=tab:>.,trail:.,extends:#,nbsp:.
 set path=**
 set scrolloff=5
-syntax on
+set cursorline
+"syntax on
 filetype plugin on
 "set cmdheight=2
 set signcolumn=yes
@@ -93,21 +95,25 @@ function! ShowFuncName()
   call search("\\%" . lnum . "l" . "\\%" . col . "c")
 endfun
 map f :call ShowFuncName() <CR>
+
+let g:indent_blankline_use_treesitter = v:true
+let g:indent_blankline_show_current_context = v:true
+map <leader>ib :IndentBlanklineToggle! <CR>
 "=========================== Misc end======================"
 
 "=========================== Vista Start======================"
-function! NearestMethodOrFunction() abort
-  return get(b:, 'vista_nearest_method_or_function', '')
-endfunction
-autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
-
-let g:vista_sidebar_position = 'vertical topleft'
-let g:vista_sidebar_width = 50
-let g:vista_echo_cursor_strategy = 'echo'
-
-let g:vista_executive_for = {
-  \ 'c': 'vim_lsp',
-  \ }
+"function! NearestMethodOrFunction() abort
+"  return get(b:, 'vista_nearest_method_or_function', '')
+"endfunction
+"autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+"
+"let g:vista_sidebar_position = 'vertical topleft'
+"let g:vista_sidebar_width = 50
+"let g:vista_echo_cursor_strategy = 'echo'
+"
+"let g:vista_executive_for = {
+"  \ 'c': 'vim_lsp',
+"  \ }
 "=========================== Vista End======================"
 
 "=========================== Airline Start======================"
@@ -152,17 +158,22 @@ let g:airline_mode_map = {
   \ }
 
 " Sections
-"let g:airline_section_b = airline#section#create([
-"            \ 'branch',
-"            \])
-"let g:airline_section_z = airline#section#create([
-"            \ 'line',
-"            \ 'column'
-"            \])
+function! AirlineInit()
+  let g:airline_section_b = airline#section#create(['branch'])
+  let g:airline_section_x = airline#section#create([])
+  let g:airline_section_y = airline#section#create(['filetype'])
+  let g:airline_section_z = airline#section#create(['linenr', 'maxlinenr'])
+endfunction
+autocmd User AirlineAfterInit call AirlineInit()
 
 " Extensions
 "let g:airline#extensions#gutentags#enabled = 1
 let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#alt_sep = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#tabline#buffer_min_count = 2
+let g:airline#extensions#tabline#formatter = 'short_path'
 "=========================== Airline End======================"
 
 "=========================== FZF Start======================"
@@ -246,8 +257,15 @@ function! FloatingFZF()
   call nvim_open_win(buf, v:true, opts)
 endfunction
 
-nnoremap <silent> <C-p> :call fzf#vim#files('.', {'options': '--prompt ""'})<CR>
-nnoremap <silent> <leader>b :Buffers<CR>
+" nnoremap <silent> <C-p> :call fzf#vim#files('.', {'options': '--prompt ""'})<CR>
+" nnoremap <silent> <leader>b :Buffers<CR>
+let g:clap_layout = { 'relative': 'editor' }
+let g:clap_project_root_markers = ['Release', 'cscope.out']
+nnoremap <silent> <C-p> :Clap files<CR>
+nnoremap <silent> <leader>r :Clap grep<CR>
+nnoremap <silent> <leader>b :Clap buffers<CR>
+nnoremap <silent> <leader>w :Clap grep ++query=<cword><CR>
+nnoremap <silent> <leader>v :Clap grep ++query=@visual<CR>
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
@@ -287,82 +305,82 @@ nmap <unique> <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
 nmap <unique> <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nmap <unique> <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
 nmap <unique> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>s :scs find s <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>g :scs find g <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>c :scs find c <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>t :scs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>e :scs find e <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>f :scs find f <C-R>=expand("<cfile>")<CR><CR>
+nmap <C-Space>i :scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-Space>d :scs find d <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space>a :scs find a <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>s :vert scs find s <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>g :vert scs find g <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>c :vert scs find c <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>t :vert scs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>e :vert scs find e <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>i :vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-Space><C-Space>d :vert scs find d <C-R>=expand("<cword>")<CR><CR>
+nmap <C-Space><C-Space>a :vert scs find a <C-R>=expand("<cword>")<CR><CR>
 "=========================== Shortcuts End======================"
 
-"=========================== LSP Registration ======================"
-"nvim_lsp.ccls.setup({config})
-"call nvim_lsp#setup("ccls", {})
+"=========================== any-jump Start======================"
+" Show line numbers in search rusults
+let g:any_jump_list_numbers = v:true
 
-let g:lsp_diagnostics_enabled = 0         " disable diagnostics support
-" use <tab> for trigger completion and navigate to the next complete item
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~ '\s'
-endfunction
+" Auto search usages
+let g:any_jump_usages_enabled = v:false
 
-inoremap <silent><expr> <Tab>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<Tab>" :
-      \ coc#refresh()
-" use <c-space>for trigger completion
-inoremap <silent><expr> <c-space> coc#refresh()
+" Auto group results by filename
+let g:any_jump_grouping_enabled = v:true
 
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-" Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+" Amount of preview lines for each search result
+let g:any_jump_preview_lines_count = 5
 
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+" Max search results, other results can be opened via [a]
+let g:any_jump_max_search_results = 7
 
-" Use K to show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+" Prefered search engine: rg or ag
+let g:any_jump_search_prefered_engine = 'rg'
+" Ungrouped results ui variants:
+" - 'filename_first'
+" - 'filename_last'
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
+let g:any_jump_results_ui_style = 'filename_first' "
 
-" Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
-" Add status line support, for integration with other plugin, checkout `:h coc-status`
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" Jump to definition under cursore
+nnoremap <leader>j :AnyJump<CR>
 
-"if executable('clangd')
-"    au User lsp_setup call lsp#register_server({
-"            \ 'name': 'clangd',
-"            \ 'cmd': {server_info->['clangd', '--background-index', '-j=8']},
-"            \ 'root_uri':{server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['cscope.files', 'compile_commands.json']))},
-"            \ 'whitelist': ['c', 'cpp'],
-"            \ })
-"endif
+" open previous opened file (after jump)
+nnoremap <leader>ab :AnyJumpBack<CR>
 
-" Start logging
-"let g:lsp_log_verbose = 1
-"let g:lsp_log_file = 'vim-lsp.log'
+" open last closed search window again
+nnoremap <leader>al :AnyJumpLastResults<CR>
 
-" Register ccls C++ lanuage server.
-if executable('ccls')
-   au User lsp_setup call lsp#register_server({
-      \ 'name': 'ccls',
-      \ 'cmd': {server_info->['ccls']},
-      \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['cscope.out', 'Release']))},
-      \ 'initialization_options': {'cache': {'directory': '/tmp/ccls/' }},
-      \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
-      \ })
-endif
-nnoremap <leader>s :LspReferences<cr>
-nnoremap <leader>g :LspDefinition<cr>
+au FileType any-jump nnoremap <buffer> o :call g:AnyJumpHandleOpen()<cr>
+au FileType any-jump nnoremap <buffer><CR> :call g:AnyJumpHandleOpen()<cr>
+au FileType any-jump nnoremap <buffer> p :call g:AnyJumpHandlePreview()<cr>
+au FileType any-jump nnoremap <buffer> <tab> :call g:AnyJumpHandlePreview()<cr>
+au FileType any-jump nnoremap <buffer> q :call g:AnyJumpHandleClose()<cr>
+au FileType any-jump nnoremap <buffer> <esc> :call g:AnyJumpHandleClose()<cr>
+au FileType any-jump nnoremap <buffer> u :call g:AnyJumpHandleUsages()<cr>
+au FileType any-jump nnoremap <buffer> U :call g:AnyJumpHandleUsages()<cr>
+au FileType any-jump nnoremap <buffer> b :call g:AnyJumpToFirstLink()<cr>
+au FileType any-jump nnoremap <buffer> T :call g:AnyJumpToggleGrouping()<cr>
+au FileType any-jump nnoremap <buffer> a :call g:AnyJumpToggleAllResults()<cr>
+au FileType any-jump nnoremap <buffer> A :call g:AnyJumpToggleAllResults()<cr>
+"=========================== any-jump End======================"
+
+""=========================== LSP Registration ======================"
+"let g:lsp_diagnostics_enabled = 0         " disable diagnostics support
+""" use <tab> for trigger completion and navigate to the next complete item
+"function! s:check_back_space() abort
+"  let col = col('.') - 1
+"  return !col || getline('.')[col - 1]  =~ '\s'
+"endfunction
+"
+"nnoremap <leader>s :LspReferences<cr>
+"nnoremap <leader>g :LspDefinition<cr>
 "=========================== LSP Registration END======================"
 
 ""=========================== Ale Plugin ======================"
@@ -372,4 +390,51 @@ nnoremap <leader>g :LspDefinition<cr>
 "" Only run linters named in ale_linters settings.
 "let g:ale_linters_explicit = 1
 ""=========================== Ale Plugin End ======================"
+
+""========================== Treesitter ==========================="
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    custom_captures = {
+      -- Highlight the @TODO capture group with the "Identifier" highlight group.
+      ["TODO"] = "Identifier",
+    },
+  },
+}
+EOF
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    },
+  },
+}
+EOF
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  indent = {
+    enable = true
+  }
+}
+EOF
+
+lua <<EOF
+require('gitsigns').setup()
+EOF
+
+""========================== Treesitter ==========================="
+
+let g:indent_blankline_use_treesitter = v:true
+let g:nord_cursor_line_number_background = 1
+let g:nord_italic = 1
+let g:nord_italic_comments = 1
 colorscheme nord
+

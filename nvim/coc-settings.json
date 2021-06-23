@@ -1,15 +1,4 @@
 {
-    "languageserver": {
-        "ccls": {
-            "command": "ccls",
-            "filetypes": ["c", "cpp", "objc", "objcpp"],
-            "rootPatterns": [".ccls", "compile_commands.json"],
-            "initializationOptions": {
-                "cache": {
-                    "directory": "/tmp/ccls/cache"
-                }
-            }
-        }
-    }
+    "coc.preferences.rootPatterns": [".git", "cscope.out", "compile_commands.json"],
+    "diagnostic.enable": false
 }
-
